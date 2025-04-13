@@ -1,0 +1,3144 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bordro Hesaplama Sistemi - Örnek</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- html2canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <style>
+        /* Genel Sayfa Stili */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1e293b;
+            background-color: #f8fafc;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Başlık Stili */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 15px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Form Elemanları */
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: #0052cc;
+            box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.1);
+            outline: none;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        /* Butonlar */
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #0052cc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0043a7;
+        }
+
+        /* Sözleşme Bilgileri Kartı */
+        .contract-info-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .contract-header {
+            background: #0052cc;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contract-header i {
+            font-size: 16px;
+        }
+
+        .contract-header h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .contract-period {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .contract-content {
+            padding: 16px;
+        }
+
+        .contract-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .contract-list li {
+            position: relative;
+            padding: 10px 0 10px 20px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .contract-list li:last-child {
+            border-bottom: none;
+        }
+
+        .contract-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 18px;
+            width: 6px;
+            height: 6px;
+            background: #0052cc;
+            border-radius: 50%;
+        }
+
+        .highlight {
+            color: #0052cc;
+            font-weight: 500;
+            background: #f0f7ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        /* Tablo Stili */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 20px;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .form-control, .btn {
+                font-size: 13px;
+            }
+
+            .contract-list li {
+                font-size: 13px;
+                padding: 8px 0 8px 18px;
+            }
+        }
+
+        /* Mobil Uyumluluk için CSS */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            body {
+                font-size: 14px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            h2 {
+                font-size: 1.5rem;
+            }
+            h3 {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* Container padding for mobile */
+        .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        /* Touch-friendly buttons */
+        .btn {
+            min-height: 44px;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border-radius: 8px;
+        }
+
+        /* Responsive tables */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Form elements */
+        input, select, textarea {
+            font-size: 16px !important; /* Prevents iOS zoom on focus */
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive images */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Card adaptations */
+        .card {
+            margin-bottom: 1rem;
+            border-radius: 10px;
+        }
+
+        /* Spacing utilities */
+        @media (max-width: 768px) {
+            .mb-sm-3 {
+                margin-bottom: 1rem !important;
+            }
+            .p-sm-2 {
+                padding: 0.5rem !important;
+            }
+        }
+
+        /* Navigation improvements */
+        .navbar-toggler {
+            padding: 0.75rem;
+        }
+
+        /* Modal adjustments */
+        .modal-dialog {
+            margin: 0.5rem;
+        }
+
+        /* Fix for fixed position elements */
+        .fixed-bottom, .fixed-top {
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* Mobil Uyumluluk İyileştirmeleri */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+            
+            .form-label {
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .form-control, .form-select {
+                font-size: 16px; /* iOS zoom önleme */
+                padding: 0.5rem;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+            }
+            
+            .alert {
+                font-size: 0.9rem;
+                padding: 0.75rem;
+            }
+            
+            .helper-text {
+                font-size: 0.8rem;
+            }
+            
+            /* Kart başlıkları için mobil görünüm */
+            .card-header {
+                padding: 0.75rem;
+            }
+            
+            /* Form grupları arası boşluk */
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
+            
+            /* Mobilde yan yana olan kolonları alt alta getir */
+            .col-md-6 {
+                margin-bottom: 1rem;
+            }
+            
+            /* Input group düzenlemesi */
+            .input-group {
+                flex-wrap: nowrap;
+            }
+            
+            /* Switch button düzenlemesi */
+            .form-check-input {
+                width: 3em;
+                height: 1.5em;
+            }
+            
+            /* Başlık boyutları */
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            h5 {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* Genel İyileştirmeler */
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #80bdff;
+        }
+        
+        .btn-primary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Erişilebilirlik İyileştirmeleri */
+        .form-control[readonly] {
+            cursor: not-allowed;
+            background-color: #e9ecef;
+        }
+        
+        /* Loading durumu için stil */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .btn-loading:after {
+            content: '';
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-left-color: transparent;
+            position: absolute;
+            right: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dokunmatik optimizasyonları */
+        @media (hover: none) {
+            .btn:active {
+                transform: scale(0.98);
+            }
+
+            input[type="radio"],
+            input[type="checkbox"] {
+                min-width: 20px;
+                min-height: 20px;
+            }
+        }
+
+        /* Tablo scroll göstergesi */
+        .table-responsive {
+            position: relative;
+        }
+
+        .table-responsive::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(to left, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+
+        /* Net Maaş Alanı Tasarımı */
+        .net-salary-card {
+            background: linear-gradient(135deg, #0052cc 0%, #1a75ff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 2rem;
+            box-shadow: 0 8px 24px rgba(0, 82, 204, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .net-salary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 82, 204, 0.2);
+        }
+
+        .net-salary-card .d-flex {
+            gap: 1rem;
+        }
+
+        .net-salary-card h5 {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .net-salary-card h5::before {
+            content: '';
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .net-salary-card .net-amount {
+            color: #ffffff;
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 576px) {
+            .net-salary-card {
+                padding: 16px;
+                margin-top: 1.5rem;
+            }
+
+            .net-salary-card h5 {
+                font-size: 1rem;
+            }
+
+            .net-salary-card h5::before {
+                width: 20px;
+                height: 20px;
+                margin-right: 8px;
+            }
+
+            .net-salary-card .net-amount {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animasyon Efekti */
+        @keyframes pulseGlow {
+            0% {
+                box-shadow: 0 8px 24px rgba(0, 82, 204, 0.15);
+            }
+            50% {
+                box-shadow: 0 12px 32px rgba(0, 82, 204, 0.25);
+            }
+            100% {
+                box-shadow: 0 8px 24px rgba(0, 82, 204, 0.15);
+            }
+        }
+
+        .net-salary-card {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+
+        /* Sayfa Genişlik Düzenlemeleri */
+        .container {
+            max-width: 1140px !important;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 960px !important;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                max-width: 720px !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 540px !important;
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                max-width: 100% !important;
+                padding: 0.5rem;
+            }
+        }
+
+        /* Kart Düzenlemeleri */
+        .card {
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        /* Form Alanı Düzenlemeleri */
+        .form-group {
+            max-width: 100%;
+        }
+
+        /* Tablo Düzenlemeleri */
+        .table-responsive {
+            max-width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        /* Sonuç Kartı Düzenlemeleri */
+        #resultCard {
+            max-width: 100%;
+        }
+
+        /* İçerik Hizalama */
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        .col-md-6 {
+            padding: 0.5rem;
+        }
+
+        /* Mobil için ek düzenlemeler */
+        @media (max-width: 768px) {
+            .row {
+                margin: 0;
+            }
+            
+            .col-md-6 {
+                padding: 0.25rem;
+            }
+
+            .card {
+                border-radius: 8px;
+                margin-bottom: 0.75rem;
+            }
+
+            .form-control, .form-select {
+                font-size: 14px !important;
+            }
+        }
+
+        /* Genel içerik alanı düzenlemesi */
+        body > .container {
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Header alanı düzenlemesi */
+        .header {
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: calc(1.5rem + 1vw);
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            font-size: calc(0.9rem + 0.3vw);
+            color: #666;
+        }
+
+        /* Yeni Footer Banner Tasarımı */
+        .footer-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 8px 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+            z-index: 1000;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1140px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .copyright-text {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .developer-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .dev-label {
+            color: #64748b;
+        }
+
+        .dev-name {
+            background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .dev-name::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                rgba(255,255,255,0) 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .dev-name:hover::before {
+            transform: translateX(100%);
+        }
+
+        .dev-name:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .dev-initial {
+            font-weight: 700;
+        }
+
+        .dev-dot {
+            opacity: 0.8;
+            margin: 0 1px;
+        }
+
+        .legal-text {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 11px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            margin-top: 4px;
+        }
+
+        .legal-warning {
+            color: #ef4444;
+            font-weight: 500;
+        }
+
+        /* Mobil Uyumluluk */
+        @media (max-width: 768px) {
+            .footer-banner {
+                padding: 6px 12px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 6px;
+                text-align: center;
+            }
+
+            .developer-info {
+                justify-content: center;
+            }
+
+            .legal-text {
+                font-size: 10px;
+                line-height: 1.4;
+            }
+
+            body {
+                padding-bottom: 90px;
+            }
+        }
+
+        /* Animasyon */
+        .dev-name {
+            transition: all 0.2s ease;
+        }
+
+        .dev-name:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .dev-name {
+            background: #3b82f6;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .dev-name:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+
+        .dev-initial {
+            font-weight: 600;
+        }
+
+        .dev-dot {
+            opacity: 0.8;
+            padding: 0 1px;
+        }
+
+        /* Footer banner düzenlemeleri */
+        .footer-banner {
+            background-color: rgba(255, 255, 255, 0.98);
+            padding: 8px 16px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .developer-info {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .dev-label {
+            margin-right: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-banner {
+                padding: 6px 12px;
+            }
+            
+            .developer-info {
+                font-size: 11px;
+            }
+        }
+
+        /* Ücret Grupları Kartı */
+        .salary-groups-card {
+            background: linear-gradient(to right bottom, #f8fafc, #f1f5f9);
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .salary-header {
+            background: #0052cc;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .salary-header i {
+            font-size: 18px;
+        }
+
+        .salary-header h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .period-badge {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .contract-period-info {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .salary-content {
+            padding: 16px;
+        }
+
+        .salary-group {
+            background: white;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .salary-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .salary-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .group-title i {
+            color: #0052cc;
+            font-size: 16px;
+        }
+
+        .salary-range {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .salary-value {
+            background: #f0f9ff;
+            color: #0052cc;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            flex: 1;
+            text-align: center;
+        }
+
+        .salary-note {
+            color: #64748b;
+            font-size: 13px;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .salary-note i {
+            color: #0052cc;
+        }
+
+        @media (max-width: 768px) {
+            .salary-header, .contract-period-info {
+                padding: 10px 14px;
+            }
+
+            .group-title, .salary-value {
+                font-size: 13px;
+            }
+
+            .salary-content {
+                padding: 12px;
+            }
+
+            .salary-group {
+                padding: 10px;
+            }
+
+            .group-title {
+                font-size: 13px;
+            }
+
+            .salary-value {
+                font-size: 13px;
+                padding: 5px 8px;
+            }
+        }
+    </style>
+    <script>
+        // jsPDF'i global scope'a ekle
+        window.jsPDF = window.jspdf.jsPDF;
+    </script>
+</head>
+<body>
+    
+
+    <div class="container">
+        <div class="header">
+            <h1>Bordro Hesaplama Sistemi</h1>
+            <p>Örnek Toplu İş Sözleşmesi (2025-2026) Ücret Hesaplama</p>
+            <div class="alert alert-warning mb-0 mt-2">
+                <i class="fas fa-exclamation-triangle me-2"></i> Bu hesaplama aracı yalnızca bilgi amaçlıdır, yasal geçerliliği yoktur.
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white border-bottom">
+                        <h5 class="mb-0 d-flex align-items-center text-primary">
+                            <i class="fas fa-calculator me-2"></i>
+                            Hesaplama Bilgileri
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="salaryForm">
+                            <div class="form-group">
+                                <label for="wageGroup" class="form-label">Ücret Grubu</label>
+                                <select id="wageGroup" class="form-select">
+                                    <option value="1">1. Grup - Sayaç Okuma Personeli </option>
+                                    <option value="2">2. Grup - Su Tespit </option>
+                                    <option value="3">3. Grup - Bakım Personeli </option>
+                                    <option value="4">4. Grup - Abonelik Hizmetleri </option>
+                                    <option value="5">5. Grup - Destek Personeli </option>
+                                    <option value="6">6. Grup - İşletmeci Personel </option>
+                                    <option value="7">7. Grup - Teknik Personel </option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="calcMonth" class="form-label">Hesaplanacak Ay</label>
+                                <input type="month" id="calcMonth" class="form-control" value="2025-03">
+                                <small class="helper-text">Hesaplamak istediğiniz ayı seçin</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="normalDays" class="form-label">Normal Çalışma Günleri</label>
+                                        <input type="number" id="normalDays" class="form-control bg-light" readonly>
+                                        <small class="helper-text text-muted">Otomatik hesaplanır</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="akdiTatilDays" class="form-label">Akdi Tatil Günleri (Cumartesi)</label>
+                                        <input type="number" id="akdiTatilDays" class="form-control bg-light" readonly>
+                                        <small class="helper-text text-muted">Otomatik hesaplanır</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="haftaTatiliDays" class="form-label">Hafta Tatili Günleri (Pazar)</label>
+                                        <input type="number" id="haftaTatiliDays" class="form-control bg-light" readonly>
+                                        <small class="helper-text text-muted">Otomatik hesaplanır</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="resmiTatilDays" class="form-label">Resmi Tatil Günleri</label>
+                                        <input type="number" id="resmiTatilDays" class="form-control bg-light" readonly>
+                                        <small class="helper-text text-muted">Otomatik hesaplanır</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="akdiTatilMesai" class="form-label">Akdi Tatil Mesai Günü</label>
+                                        <input type="number" id="akdiTatilMesai" class="form-control" min="0" max="5" value="0">
+                                        <small class="helper-text">Akdi tatil günlerinde (Cumartesi) çalışılan gün sayısı</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="resmiTatilMesai" class="form-label">Resmi Tatil Mesai Günü</label>
+                                        <input type="number" id="resmiTatilMesai" class="form-control" min="0" max="10" value="0">
+                                        <small class="helper-text">Resmi tatil günlerinde çalışılan gün sayısı</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card shadow-sm border-0">
+                                        <div class="card-header bg-info text-white d-flex align-items-center" style="font-size: 0.95rem;">
+                                            <i class="fas fa-bus me-2"></i> <strong>Ulaşım Yardımı Ayarları</strong>
+                                        </div>
+                                        <div class="card-body py-3 px-4">
+                                            <div class="mb-3">
+                                                <label for="istanbulkartUcreti" class="form-label fw-semibold text-dark">
+                                                    İstanbulkart Aylık Abonman Ücreti
+                                                </label>
+                                                <div class="input-group">
+                                                    <input type="number" id="istanbulkartUcreti" class="form-control shadow-sm" value="2120.00" step="0.01" placeholder="Örnek: 2120.00">
+                                                    <span class="input-group-text bg-light text-dark">₺</span>
+                                                </div>
+                                                <small class="text-muted fst-italic d-block mt-1">
+                                                    * Lütfen İstanbulkart'ın güncel aylık abonman ücretini kontrol ediniz ve net ücret olarak giriniz.
+                                                </small>
+                                            </div>
+                                
+                                            <div class="alert alert-secondary border-start border-4 border-info mt-4" role="alert">
+                                                <strong>2025 Güncel İstanbulkart Aylık Abonman Ücretleri:</strong>
+                                                <ul class="mb-0 ps-3 mt-2 small">
+                                                    <li><strong>Tam İstanbulkart:</strong> ₺2.120</li>
+                                                    <li><strong>Öğrenci İstanbulkart:</strong> ₺381</li>
+                                                    <li><strong>29 Yaş Üstü Öğrenci:</strong> ₺1.170</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="rapor" class="form-label">Rapor Günleri</label>
+                                        <input type="number" id="rapor" class="form-control" min="0" value="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info mt-2">
+                                <i class="fas fa-info-circle"></i> Rapor Günleri Bilgisi:
+                                <ul class="mb-0">
+                                    <li>2 güne kadar olan raporlarda ücret ödemesi işveren inisiyatifindedir. SGK ödeme yapmaz.</li>
+                                    <li>3. günden itibaren SGK tarafından geçici iş göremezlik ödeneği ödenir.</li>
+                                    <li>Bu ödenek, çalışanın günlük kazancının 2/3'ü oranındadır.</li>
+                                    <li>Yemek yardımı, yalnızca fiilen çalışılan günler için ödenir.</li>
+                                </ul>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="sendikali" class="form-label">Sendika Üyesi</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="sendikali" checked>
+                                            <label class="form-check-label" for="sendikali">Sendika aidatı kesilecek</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mt-4 pt-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="isAfterJuly2025">
+                                            <label class="form-check-label" for="isAfterJuly2025">01.07.2025 Sonrası</label>
+                                            <small class="helper-text d-block">Temmuz 2025 sonrası hesaplama için işaretleyin</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="icraKesinti" class="form-label">İcra Kesintisi</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="icraKesinti">
+                                            <label class="form-check-label" for="icraKesinti">İcra kesintisi uygulanacak</label>
+                                        </div>
+                                        <small class="helper-text">Yasal sınır: Net maaşın %25'i</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group mt-4">
+                                <button type="button" onclick="calculateSalary()" class="btn btn-primary btn-block">
+                                    <i class="fas fa-calculator"></i> Bordro Hesapla
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="resultCard" class="card shadow-sm mb-4" style="display:none;">
+                    <div class="card-header bg-success text-white py-2 px-3" style="font-size: 0.95rem;">
+                        <i class="fas fa-calculator me-1"></i> Maaş Detayları
+                    </div>
+                    <div class="card-body py-3 px-3" style="font-size: 0.88rem;">
+                        <div id="result"></div>
+                        <div class="date-info text-muted small mt-2" id="calculationDate"></div>
+                    </div>
+                </div>
+            
+       <div class="row g-3 mb-4">
+  <!-- Grup 1 -->
+  <div class="col-12 col-md-4">
+    <div class="border rounded p-2 h-100 text-center">
+      <div class="fw-semibold text-dark small mb-2">
+        <i class="fas fa-users text-primary me-1"></i> 1. Grup <br> Sayaç Okuma
+      </div>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <span class="badge bg-info text-white px-2 py-1 rounded">₺1.600,00</span>
+        <span class="badge bg-light text-primary border border-info px-2 py-1 rounded">₺1.900,00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grup 2 -->
+  <div class="col-12 col-md-4">
+    <div class="border rounded p-2 h-100 text-center">
+      <div class="fw-semibold text-dark small mb-2">
+        <i class="fas fa-tint text-primary me-1"></i> 2. Grup <br> Su Tespit
+      </div>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <span class="badge bg-info text-white px-2 py-1 rounded">₺1.625,00</span>
+        <span class="badge bg-light text-primary border border-info px-2 py-1 rounded">₺1.930,00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grup 3 -->
+  <div class="col-12 col-md-4">
+    <div class="border rounded p-2 h-100 text-center">
+      <div class="fw-semibold text-dark small mb-2">
+        <i class="fas fa-tools text-primary me-1"></i> 3. Grup <br> Bakım Personeli
+      </div>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <span class="badge bg-info text-white px-2 py-1 rounded">₺1.675,00</span>
+        <span class="badge bg-light text-primary border border-info px-2 py-1 rounded">₺1.989,00</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="mt-3">
+  <h6 class="fw-bold mb-3">
+    <i class="fas fa-file-alt text-secondary me-2"></i> Dönem Detayları
+  </h6>
+  <ul class="list-unstyled text-dark small">
+    <li class="mb-2">
+      <strong>01.07.2025:</strong> Tüm brüt ücretlere 
+      <span class="text-success fw-semibold">%18,75</span> artış uygulanacaktır.
+    </li>
+    <li class="mb-2">
+      <strong>01.01.2026:</strong> 2025 yılı TÜİK enflasyon oranına 
+      <span class="text-success fw-semibold">+2 puan</span> artış yapılarak uygulanacaktır.
+    </li>
+    <li class="mb-2">
+      <strong>01.07.2026:</strong> 2026 yılı ilk 6 aylık enflasyona 
+      <span class="text-success fw-semibold">+2 puan</span> eklenerek artış yapılacaktır.
+    </li>
+    <li class="mb-2">
+      <strong>01.01.2027:</strong> 2026 yılı TÜİK yıllık enflasyon oranı kadar artış uygulanacaktır.
+    </li>
+  </ul>
+  <p class="text-muted small mb-0">
+    Bu bilgiler, belirtilen dönemde geçerli olan toplu iş sözleşmesine göre belirlenmiştir.
+  </p>
+</div>
+
+                
+                <div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark d-flex align-items-center" style="font-size: 1rem;">
+            <i class="fas fa-chart-line me-2"></i> <strong>TÜFE Oranı Güncelleme Paneli</strong>
+        </div>
+        <div class="card-body py-3 px-4">
+            <form id="tufeForm">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="tufeRate" class="form-label">TÜFE Oranı (%)</label>
+                            <input type="number" id="tufeRate" class="form-control" step="0.01" value="00.00">
+                            <small class="helper-text">Güncel TÜFE oranını girin (örnek: 12.00)</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group mt-3">
+                    <button type="button" onclick="updateTufeRates()" class="btn btn-warning btn-block">
+                        <i class="fas fa-sync-alt"></i> TÜFE Oranlarını Güncelle
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Harun tarafından tasarlanmıştır - gizli bilgi -->
+<div id="developer-info" class="d-none" data-designer="Harun">
+    <!-- 
+        Bu sayfa Harun tarafından tasarlanmış ve geliştirilmiştir.
+        Tüm hakları saklıdır. İzinsiz kullanımı ve kopyalanması yasaktır.
+    -->
+</div>
+
+
+
+<script>
+    const aidTypes = [
+        { type: 'Çocuk Yardımı', baseAmount: 231, description: 'Maks. 3 çocukla sınırlı' },
+        { type: 'Öğrenim Yardımı', baseAmount: [2500, 2750, 3000], description: 'İlkokul / Lise / Üniversite bazlı' },
+        { type: 'Yakacak Yardımı', baseAmount: 277, description: 'Aylık sabit yardım' },
+        { type: 'Evlenme', baseAmount: 1100, description: 'Tek seferlik' },
+        { type: 'Doğum', baseAmount: 750, description: 'Tek seferlik' },
+        { type: 'Ölüm', baseAmount: 1250, description: 'Tek seferlik' }
+    ];
+
+    const additionalPoints = 2.00; // Sözleşmede sabit olarak belirtilen ek puan
+
+    function calculateBayramYardimi(month, year, tufeRate) {
+        // Başlangıç tutarı
+        const baseAmount = 1500;
+
+        // TÜFE artışı uygulanacak
+        let updatedAmount = baseAmount;
+
+        // 01.07.2025 sonrası TÜFE artışı
+        if (year > 2025 || (year === 2025 && month >= 7)) {
+            updatedAmount *= 1 + (tufeRate / 100);
+        }
+
+        // 2026 ve sonrası için Ocak ve Temmuz'da TÜFE artışı
+        if (year === 2026) {
+            if (month >= 1 && month <= 6) {
+                updatedAmount *= 1 + (tufeRate / 100); // Ocak artışı
+            } else if (month >= 7) {
+                updatedAmount *= 1 + (tufeRate / 100); // Temmuz artışı
+            }
+        }
+
+        return updatedAmount;
+    }
+
+    function updateTufeRates() {
+        const tufeRate = parseFloat(document.getElementById('tufeRate').value) || 0;
+
+        // TÜFE oranına göre toplam artış oranı
+        const totalRate = 1 + (tufeRate / 100);
+
+        // Bayram yardımı örneği
+        const ramazanYardimi = calculateBayramYardimi(3, 2025, tufeRate);
+        const kurbanYardimi = calculateBayramYardimi(6, 2025, tufeRate);
+
+        console.log(`Ramazan Yardımı: ${ramazanYardimi} ₺`);
+        console.log(`Kurban Yardımı: ${kurbanYardimi} ₺`);
+
+        // Yardım türlerini güncelle
+        aidTypes.forEach(aid => {
+            if (Array.isArray(aid.baseAmount)) {
+                aid.updatedAmount = aid.baseAmount.map(amount => (amount * totalRate).toFixed(2));
+            } else {
+                aid.updatedAmount = (aid.baseAmount * totalRate).toFixed(2);
+            }
+        });
+
+        displayUpdatedAidTypes();
+    }
+
+    function displayUpdatedAidTypes() {
+        const resultHTML = aidTypes.map((aid, index) => `
+            <tr>
+                <td>
+                    <input type="checkbox" id="aidSelect${index}" class="form-check-input" onchange="updateSelectedAids()" />
+                    <label for="aidSelect${index}" class="form-check-label">${aid.type}</label>
+                </td>
+                <td>${Array.isArray(aid.baseAmount) ? aid.baseAmount.join(' / ') : aid.baseAmount} ₺</td>
+                <td>
+                    ${
+                        aid.type === 'Çocuk Yardımı' 
+                          ? `<select id="childCount${index}" class="form-select form-select-sm" onchange="updateSelectedAids()">
+                               ${[0,1,2,3].map(count => `<option value="${count}">${count} Çocuk</option>`).join('')}
+                             </select>`
+                          : Array.isArray(aid.updatedAmount) 
+                              ? `<select id="aidOption${index}" class="form-select form-select-sm" onchange="updateSelectedAids()">
+                                     ${aid.updatedAmount.map(amount => `<option value="${amount}">${amount} ₺</option>`).join('')}
+                                 </select>`
+                              : `${aid.updatedAmount} ₺`
+                    }
+                </td>
+                <td>${aid.description}</td>
+            </tr>
+        `).join('');
+        document.getElementById('aidTableBody').innerHTML = resultHTML;
+    }
+
+    function updateSelectedAids() {
+        let selectedAidTotal = 0;
+        let selectedAidDetails = [];
+        aidTypes.forEach((aid, index) => {
+            const checkbox = document.getElementById(`aidSelect${index}`);
+            if (checkbox && checkbox.checked) {
+                if (aid.type === 'Çocuk Yardımı') {
+                    const childCount = parseInt(document.getElementById(`childCount${index}`).value) || 0;
+                    const childAmount = parseFloat(aid.updatedAmount) * childCount;
+                    selectedAidTotal += childAmount;
+                    selectedAidDetails.push(`${aid.type}: ${childCount} çocuk (${formatTL(childAmount)})`);
+                } else if (Array.isArray(aid.updatedAmount)) {
+                    const selectedOption = document.getElementById(`aidOption${index}`).value;
+                    selectedAidTotal += parseFloat(selectedOption);
+                    selectedAidDetails.push(`${aid.type}: ${selectedOption} ₺`);
+                } else {
+                    selectedAidTotal += parseFloat(aid.updatedAmount);
+                    selectedAidDetails.push(`${aid.type}: ${aid.updatedAmount} ₺`);
+                }
+            }
+        });
+        document.getElementById('selectedAidTotal').textContent = formatTL(selectedAidTotal);
+        document.getElementById('selectedAidTotal').dataset.value = selectedAidTotal;
+        document.getElementById('selectedAidDetails').textContent = selectedAidDetails.join(', ');
+    }
+
+    window.addEventListener('load', displayUpdatedAidTypes);
+</script>
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-info text-white d-flex align-items-center" style="font-size: 1rem;">
+            <i class="fas fa-hand-holding-usd me-2"></i> <strong>Yardım Türleri ve Güncel Tutarlar</strong>
+        </div>
+        <div class="card-body py-3 px-4">
+            <table class="table table-bordered">
+                <thead>
+                    <tr class="table-primary">
+                        <th>Seçim</th>
+                        <th>Başlangıç Tutarı</th>
+                        <th>Güncel Tutar</th>
+                        <th>Açıklama</th>
+                    </tr>
+                </thead>
+                <tbody id="aidTableBody">
+                    <!-- Dinamik olarak doldurulacak -->
+                </tbody>
+            </table>
+            <div class="mt-3">
+                <strong>Seçilen Yardımların Toplamı:</strong> 
+                <span id="selectedAidTotal" data-value="0">₺0.00</span>
+                <br>
+                <strong>Seçilen Yardımlar:</strong> 
+                <span id="selectedAidDetails">Yok</span>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    <script>
+        const wageGroups = [
+            {
+                group: 1,
+                name: 'SAYAÇ OKUMA PERSONELİ',
+                dailyWage: 1600.00,
+                afterJuly2025: 1840.00
+            },
+            {
+                group: 2,
+                name: 'İZİNSİZ SU TESPİT PERSONELİ',
+                dailyWage: 1625.00,
+                afterJuly2025: 1930.00
+            },
+            {
+                group: 3,
+                name: 'BAKIM PERSONELİ',
+                dailyWage: 1675.00,
+                afterJuly2025: 1989.00
+            },
+            {
+                group: 4,
+                name: 'ABONELİK HİZMETLERİ PERSONELİ',
+                dailyWage: 1725.00,
+                afterJuly2025: 2048.00
+            },
+            {
+                group: 5,
+                name: 'DESTEK PERSONELİ',
+                dailyWage: 1775.00,
+                afterJuly2025: 2108.00
+            },
+            {
+                group: 6,
+                name: 'İŞLETMECİ PERSONEL',
+                dailyWage: 2050.00,
+                afterJuly2025: 2375.00
+            },
+            {
+                group: 7,
+                name: 'TEKNİK PERSONEL',
+                dailyWage: 2650.00,
+                afterJuly2025: 3000.00
+            }
+        ];
+
+        // TL formatında göster
+        function formatTL(amount) {
+            return new Intl.NumberFormat('tr-TR', { 
+                style: 'currency', 
+                currency: 'TRY', 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function parseTurkishFloat(str) {
+            return parseFloat(str.replace(",", "."));
+        }
+
+        // Yemek yardımı hesaplama fonksiyonunu düzelt
+        function calculateMealAllowance(group, normalDays, akdiTatilMesai, resmiTatilMesai, raporDays) {
+            // Ücret grubuna göre günlük yemek yardımı tutarı
+            const dailyMealAllowances = {
+                1: 240,
+                2: 240,
+                3: 240,
+                4: 240,
+                5: 240,
+                6: 240,
+                7: 240
+            };
+
+            // Yarım günlük tatiller de tam gün sayılacak
+            // Normal günler zaten yarım günleri içeriyor
+            const fiiliCalismaGunleri = normalDays + akdiTatilMesai + resmiTatilMesai - raporDays;
+
+            // Fiili çalışılan günler negatif olamaz
+            const totalWorkDays = Math.max(fiiliCalismaGunleri, 0);
+
+            return dailyMealAllowances[group] * Math.ceil(totalWorkDays);
+        }
+
+        // İkramiye hesaplama fonksiyonu
+        function calculateIkramiye(dailyWage, selectedMonth) {
+            // İkramiye ödemeleri (60 günlük ikramiye 4'e bölünür - TİS Madde 38)
+            const ikramiyeOdemeleri = {
+                3: 15,  // Mart - 15 günlük
+                6: 15,  // Haziran - 15 günlük
+                9: 15,  // Eylül - 15 günlük
+                12: 15  // Aralık - 15 günlük
+            };
+
+            // Seçilen ay ikramiye ayı değilse 0 döndür
+            if (!ikramiyeOdemeleri.hasOwnProperty(selectedMonth)) {
+                return 0;
+            }
+
+            // İkramiye tutarını hesapla
+            const gunSayisi = ikramiyeOdemeleri[selectedMonth];
+            return dailyWage * gunSayisi;
+        }
+
+        // Sendika aidatı hesaplama fonksiyonu - günlük net ücretten kesinti
+        function calculateSendikaAidati(dailyWage, normalDays) {
+            // Günlük brüt ücretten SGK, işsizlik, gelir ve damga vergisi düşülerek net hesaplanır
+            const gunlukNet = dailyWage * (1 - 0.14 - 0.01 - 0.07 - 0.00759);
+            // Normal çalışma günü kadar günlük net ücret kesintisi
+            return gunlukNet;
+        }
+
+        // Bayram yardımları hesaplama fonksiyonu (TİS Madde 39)
+        function calculateBayramYardimi(month, year, tufeRate = 0) {
+            const baseAmount = 1500;
+            let updatedAmount = baseAmount;
+
+            if (year > 2025 || (year === 2025 && month >= 7)) {
+                updatedAmount *= 1 + (tufeRate / 100);
+            }
+
+            if (year === 2026) {
+                if (month >= 1 && month <= 6) {
+                    updatedAmount *= 1 + (tufeRate / 100);
+                } else if (month >= 7) {
+                    updatedAmount *= 1 + (tufeRate / 100);
+                }
+            }
+
+            return updatedAmount;
+        }
+
+        // Resmi tatil mesai hesaplama fonksiyonunu düzelt
+        function calculateResmiTatilMesai(dailyWage, days) {
+            // Resmi tatilde çalışma için toplam 3 yevmiye ödenir
+            return days * dailyWage * 3;
+        }
+
+        // Akdi tatil mesai hesaplama fonksiyonu ekle
+        function calculateAkdiTatilMesai(dailyWage, days) {
+            // İlave 1 yevmiye ödemesi
+            return days * dailyWage;
+        }
+
+        // İstanbulkart aylık abonman ücretleri ve artışları
+        const transportationFees = {
+            baseYear: 2024,
+            baseFee: 1228.99,  // 2024 yılı ücreti
+            yearlyIncreases: {
+                2024: 1.00,    // baz yıl
+                2025: 1.40,    // %40 artış örnek
+                2026: 1.65     // %65 artış örnek
+            }
+        };
+
+        // Net tutarı brüte çeviren fonksiyon
+        function netToBrut(netTutar) {
+            // Kesinti oranları
+            const sgkOrani = 0.14;      // %14
+            const issizlikOrani = 0.01; // %1
+            const gelirVergisiOrani = 0.07; // %7
+            const damgaVergisiOrani = 0.00759; // %0.759
+            
+            // Toplam kesinti oranı
+            const toplamKesinti = sgkOrani + issizlikOrani + gelirVergisiOrani + damgaVergisiOrani;
+            
+            // Brüt = Net / (1 - Toplam Kesinti Oranı)
+            const brutTutar = netTutar / (1 - toplamKesinti);
+            
+            return brutTutar;
+        }
+
+        // Ulaşım yardımı hesaplama fonksiyonunu güncelle
+        function calculateTransportation(month, year) {
+            const feeInput = document.getElementById('istanbulkartUcreti').value.replace(",", ".");
+            const netFee = parseTurkishFloat(feeInput) || 2965.41;
+            
+            // Net tutarı brüte çevir
+            const brutFee = netToBrut(netFee);
+            
+            return brutFee;
+        }
+
+        // SGK Rapor ödemesi hesaplama fonksiyonu güncelle
+        function calculateSGKRaporOdemesi(dailyWage, raporGun) {
+            if (raporGun <= 2) return 0;
+            
+            // 3. günden itibaren SGK ödemesi başlar
+            const sgkOdemeGunSayisi = raporGun - 2;
+            const gunlukSGKOdemesi = (dailyWage * 2) / 3; // Günlük ücretin 2/3'ü
+            return gunlukSGKOdemesi * sgkOdemeGunSayisi;
+        }
+
+        // Sokak harcırahı hesaplama fonksiyonu güncellendi
+        function calculateSokakHarcirahi(group, month, year, normalDays, akdiTatilMesai, resmiTatilMesai) {
+            // Sadece sayaç okuma ve kapama açma personeli için geçerli (Grup 1 ve 2)
+            if (group !== 1 && group !== 2) return 0;
+
+            // TİS Madde 49'a göre günlük sokak harcırahı tutarları
+            let gunlukHarcirah = 30; // 01.03.2025 tarihinden itibaren
+            
+            // 01.07.2025 sonrası için güncellenen tutar
+            if ((month >= 7 && year === 2025) || year > 2025) {
+                gunlukHarcirah = 45;
+            }
+
+            // 2026 yılı 1. ve 2. 6 aylık dönemler için TÜİK TÜFE artışı + 2 puan
+            // Not: TÜİK TÜFE oranları henüz belli olmadığı için sadece baz tutarlar kullanılıyor
+            if (year === 2026) {
+                if (month <= 6) {
+                    // 2026 ilk 6 ay için varsayılan artış (%30 + 2 puan örnek)
+                    gunlukHarcirah = 45 * 1.32;
+                } else {
+                    // 2026 ikinci 6 ay için varsayılan artış (%25 + 2 puan örnek)
+                    gunlukHarcirah = (45 * 1.32) * 1.27;
+                }
+            }
+
+            // Fiili çalışma günleri (normal günler + mesai günleri)
+            const toplamCalismaGunu = normalDays + akdiTatilMesai + resmiTatilMesai;
+            
+            return gunlukHarcirah * toplamCalismaGunu;
+        }
+
+        // Sosyal yardım hesaplama fonksiyonu
+        function calculateSocialAid(month, year) {
+            let aidAmount = 3000; // Mart 2025 itibariyle başlangıç tutarı
+
+            if (year === 2025 && month >= 7) {
+                aidAmount = 3696.72; // Temmuz 2025 zammı
+            }
+
+            if (year === 2026) {
+                // TÜFE + 2 puan: örnek oranlar üzerinden artışlar
+                const januaryIncreaseRate = 0.14; // Örn: %12 + 2 puan
+                const julyIncreaseRate = 0.12; // Örn: %10 + 2 puan
+
+                if (month >= 1) {
+                    aidAmount = 3696.72 * (1 + januaryIncreaseRate);
+                }
+                if (month >= 7) {
+                    aidAmount = aidAmount * (1 + julyIncreaseRate);
+                }
+            }
+
+            return aidAmount;
+        }
+
+        // Çocuk yardımı hesaplama fonksiyonu
+        function calculateChildAllowance(childCount, month, year) {
+            if (childCount > 3) childCount = 3; // Maksimum 3 çocuk sınırı
+            let unitAmount = 231; // Mart 2025 itibariyle başlangıç tutarı
+
+            // TÜFE artışlarını örneklerle ele alalım
+            if (year === 2025 && month >= 7) {
+                unitAmount *= 1.15; // Temmuz 2025 sonrası %15 artış
+            } else if (year === 2026 && month >= 1) {
+                unitAmount *= 1.30; // Ocak 2026 sonrası %30 artış (örnek)
+            }
+
+            return unitAmount * childCount;
+        }
+
+        // Maaş hesaplama fonksiyonu (icra kesintisi olmadan)
+        function calculateSalary() {
+            try {
+                const group = parseInt(document.getElementById('wageGroup').value) || 1;
+                const calcMonthInput = document.getElementById('calcMonth').value;
+                const calcDate = new Date(calcMonthInput + '-01');
+                const month = calcDate.getMonth() + 1;
+                const year = calcDate.getFullYear();
+                const tufeRate = parseFloat(document.getElementById('tufeRate').value) || 0;
+                let normalDays = parseInt(document.getElementById('normalDays').value) || 0;
+                const akdiTatilDays = parseInt(document.getElementById('akdiTatilDays').value) || 0;
+                const haftaTatiliDays = parseInt(document.getElementById('haftaTatiliDays').value) || 0;
+                const resmiTatilDays = parseInt(document.getElementById('resmiTatilDays').value) || 0;
+                const akdiTatilMesai = parseInt(document.getElementById('akdiTatilMesai').value) || 0;
+                const resmiTatilMesai = parseInt(document.getElementById('resmiTatilMesai').value) || 0;
+                const rapor = parseInt(document.getElementById('rapor').value) || 0;
+                const cocuk = 0; // Çocuk yardımı artık yardım türlerinden seçiliyor
+                const sendikali = document.getElementById('sendikali').checked;
+                const isIcraKesinti = document.getElementById('icraKesinti').checked;
+
+                const wageGroup = wageGroups[group - 1];
+                // Temmuz 2025 sonrası için %18,75 artışı yalnızca yevmiyelere uygula
+                const dailyWage = (month >= 7 && year === 2025) || year > 2025 
+                    ? wageGroup.dailyWage * 1.1875 
+                    : wageGroup.dailyWage;
+
+                const akdiTatilUcret = akdiTatilDays * dailyWage;
+                const haftaTatilUcret = haftaTatiliDays * dailyWage;
+                const resmiTatilUcret = resmiTatilDays * dailyWage;
+
+                const akdiTatilMesaiUcret = calculateAkdiTatilMesai(dailyWage, akdiTatilMesai);
+                const resmiTatilMesaiUcret = calculateResmiTatilMesai(dailyWage, resmiTatilMesai);
+
+                let raporKesintiGun = 0;
+                if (rapor > 2) {
+                    raporKesintiGun = rapor - 2;
+                    normalDays -= raporKesintiGun;
+                }
+
+                const normalUcret = normalDays * dailyWage;
+                const yemekYardimi = calculateMealAllowance(group, normalDays, akdiTatilMesai, resmiTatilMesai, rapor);
+                const yolYardimi = calculateTransportation(month, year);
+                const sosyalYardim = calculateSocialAid(month, year); // Dinamik sosyal yardım hesaplama
+                const yakacakYardimi = 277;
+                const cocukYardimi = calculateChildAllowance(cocuk, month, year); // Dinamik çocuk yardımı hesaplama
+                const ikramiye = calculateIkramiye(wageGroup.dailyWage, month); // İkramiye artıştan etkilenmez
+                const bayramYardimi = calculateBayramYardimi(month, year, tufeRate);
+                const sokakHarcirahi = calculateSokakHarcirahi(group, month, year, normalDays, akdiTatilMesai, resmiTatilMesai);
+
+                const ramazanYardimi = month === 3 ? calculateBayramYardimi(month, year, tufeRate) : 0;
+                const kurbanYardimi = month === 6 ? calculateBayramYardimi(month, year, tufeRate) : 0;
+
+                // Yardım türlerinden seçilen toplam tutarı ekle
+                const selectedAidTotal = parseFloat(document.getElementById('selectedAidTotal').dataset.value) || 0;
+                const grossSalary = 
+                    normalUcret + akdiTatilUcret + haftaTatilUcret + resmiTatilUcret +
+                    akdiTatilMesaiUcret + resmiTatilMesaiUcret + yemekYardimi +
+                    yolYardimi + sosyalYardim + yakacakYardimi + cocukYardimi +
+                    ikramiye + sokakHarcirahi + ramazanYardimi + kurbanYardimi +
+                    selectedAidTotal;
+
+                const sgkDeduction = grossSalary * 0.14; // İşçi SGK kesintisi (%14)
+                const unemploymentDeduction = grossSalary * 0.01; // İşçi işsizlik sigortası (%1)
+                const stampTax = grossSalary * 0.00759; // Damga vergisi (%0.759)
+                const incomeTax = grossSalary * 0.07; // Gelir vergisi (%7)
+                const sendikaAidati = sendikali ? calculateSendikaAidati(dailyWage, normalDays) : 0;
+
+                // İcra kesintisi hesaplama (net maaşın %25'i)
+                const icraKesinti = isIcraKesinti ? (grossSalary - (sgkDeduction + unemploymentDeduction + stampTax + incomeTax + sendikaAidati)) * 0.25 : 0;
+
+                // Net maaşı hesapla
+                const netSalary = grossSalary - (sgkDeduction + unemploymentDeduction + stampTax + incomeTax + sendikaAidati + icraKesinti);
+
+                // Sonuçları göster
+                displayResults({
+                    wageGroupName: wageGroup.name,
+                    dailyWage: dailyWage,
+                    normalDays, 
+                    akdiTatilDays, 
+                    haftaTatiliDays,
+                    resmiTatilDays,
+                    normalUcret,
+                    akdiTatilUcret,
+                    haftaTatilUcret,
+                    resmiTatilUcret,
+                    akdiTatilMesai,
+                    resmiTatilMesai,
+                    akdiTatilMesaiUcret,
+                    resmiTatilMesaiUcret,
+                    mealAllowance: yemekYardimi,
+                    transportation: yolYardimi, 
+                    social: sosyalYardim,
+                    bonus: ikramiye,
+                    yakacakYardimi,
+                    cocukYardimi,
+                    bayramYardimi,
+                    sokakHarcirahi,
+                    grossSalary,
+                    sgkDeduction,
+                    unemploymentDeduction,
+                    incomeTax,
+                    stampTax,
+                    sendikaAidati,
+                    netSalary,
+                    sendikali,
+                    selectedYear: year,
+                    selectedMonth: month,
+                    raporGun: rapor,
+                    icraKesinti,
+                    ramazanYardimi,
+                    kurbanYardimi,
+                    selectedAidDetails: document.getElementById('selectedAidDetails').textContent
+                });
+
+            } catch (error) {
+                console.error('Hesaplama hatası:', error);
+                alert('Hesaplama sırasında bir hata oluştu. Lütfen tüm alanları kontrol edip tekrar deneyin. Hata: ' + error.message);
+            }
+        }
+
+        // Sonuçları göster
+        function displayResults(data) {
+            try {
+                // Seçilen tarih bilgisini doğru şekilde al
+                const calcMonthInput = document.getElementById('calcMonth').value;
+                const calcDate = new Date(calcMonthInput + '-01');
+                data.selectedYear = calcDate.getFullYear();
+                data.selectedMonth = calcDate.getMonth() + 1;
+
+                // Sözleşme bilgisi
+                const sozlesmeBaslangic = new Date('2025-03-01');
+                const hesaplamaTarihi = new Date(data.selectedYear, data.selectedMonth - 1, 1);
+
+                // Tarih bilgisi
+                let tarihBilgisi = "";
+                if (hesaplamaTarihi < sozlesmeBaslangic) {
+                    tarihBilgisi = "<div class='alert alert-warning'>Dikkat: Bu tarih toplu iş sözleşmesi öncesi bir döneme aittir!</div>";
+                } else if (data.selectedMonth >= 7 && data.selectedYear === 2025) {
+                    tarihBilgisi = "<div class='alert alert-info'>Bu hesaplama Temmuz 2025 sonrası %18.75 zam uygulanarak yapılmıştır.</div>";
+                }
+
+                // SGK Rapor Ödemesi Bilgisi
+                let raporBilgisi = "";
+                if (data.raporGun > 0) {
+                    const sgkOdemesi = data.raporGun > 2 ? calculateSGKRaporOdemesi(data.dailyWage, data.raporGun) : 0;
+                    const isverenOdemesi = Math.min(data.raporGun, 2) * data.dailyWage;
+                    
+                    raporBilgisi = `
+                        <div class="alert alert-info mt-3">
+                            <h5 class="alert-heading"><i class="fas fa-info-circle"></i> Rapor Günleri Detayı</h5>
+                            <p class="mb-0">Toplam Rapor Süresi: <strong>${data.raporGun} gün</strong></p>
+                            <hr>
+                            <ul class="mb-0">
+                                ${data.raporGun <= 2 ? 
+                                    `<li>İlk ${data.raporGun} gün için işveren inisiyatifinde ödeme: <strong>${formatTL(isverenOdemesi)}</strong></li>
+                                     <li>SGK ödemesi yok (2 günden az rapor)</li>` :
+                                    `<li>İlk 2 gün için işveren inisiyatifinde ödeme: <strong>${formatTL(isverenOdemesi)}</strong></li>
+                                     <li>${data.raporGun - 2} gün için SGK ödemesi: <strong>${formatTL(sgkOdemesi)}</strong></li>
+                                     <li>Günlük SGK ödemesi (ücretin 2/3'ü): <strong>${formatTL((data.dailyWage * 2) / 3)}</strong></li>`
+                                }
+                                <li>Not: Yemek yardımı rapor günleri için ödenmez.</li>
+                            </ul>
+                        </div>
+                    `;
+                }
+
+                const totalDeductions = data.sgkDeduction + data.unemploymentDeduction + data.incomeTax + data.stampTax + data.sendikaAidati + data.icraKesinti;
+
+                const resultHTML = `
+                    <div class="payroll-container" id="payrollDetails">
+                        <div class="alert alert-warning mb-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Bu hesaplama aracı yalnızca bilgi amaçlıdır, yasal geçerliliği yoktur.
+                        </div>
+                        ${raporBilgisi}
+                        <!-- Üst Başlık Alanı -->
+                        <div class="payroll-header-section mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="period-info mb-0">Dönem: ${new Date(data.selectedYear, data.selectedMonth-1).toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' })}</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="printPayroll()">
+                                        <i class="fas fa-print me-1"></i> Yazdır
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="generatePDF()">
+                                        <i class="fas fa-file-pdf me-1"></i> PDF İndir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ana İçerik -->
+                        <div class="payroll-content">
+                            <!-- Personel Bilgileri -->
+                            <div class="info-card mb-4">
+                                <div class="info-card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-user-tie me-2"></i>
+                                        Personel Bilgileri
+                                    </h5>
+                                </div>
+                                <div class="info-card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <span class="info-label">Personel Grubu:</span>
+                                                <span class="info-value">${data.wageGroupName}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-item">
+                                                <span class="info-label">Günlük Brüt Ücret:</span>
+                                                <span class="info-value">${formatTL(data.dailyWage)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Maaş Detayları -->
+                            <div class="payroll-card mb-4">
+                                <div class="payroll-card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-money-bill-wave me-2"></i>
+                                        Maaş Detayları
+                                    </h5>
+                                </div>
+                                <div class="payroll-card-body">
+                                    <table class="table table-modern">
+                                        <thead>
+                                            <tr>
+                                                <th>Kalem</th>
+                                                <th class="text-end">Tutar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="item-icon me-2"><i class="fas fa-calendar-day"></i></span>
+                                                        <span>Normal Çalışma (${data.normalDays} gün)</span>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end amount">${formatTL(data.normalUcret)}</td>
+                                            </tr>
+                                            <!-- Diğer kalemler için benzer yapı -->
+                                            ${generatePayrollRows(data)}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="total-row">
+                                                <th>
+                                                    <div class="d-flex align-items-center">
+                                                        <span class="total-icon"><i class="fas fa-calculator"></i></span>
+                                                        <span class="total-label">Toplam Brüt</span>
+                                                    </div>
+                                                </th>
+                                                <th class="text-end total-amount">${formatTL(data.grossSalary)}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+
+                    <style>
+                        .total-row {
+                            background: linear-gradient(135deg, #2563eb, #3b82f6);
+                            color: white !important;
+                            border: none;
+                        }
+
+                        .total-row th {
+                            color: white !important;
+                            background: transparent !important;
+                            border: none !important;
+                            padding: 1rem !important;
+                        }
+
+                        .total-icon {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 32px;
+                            height: 32px;
+                            margin-right: 12px;
+                            background: rgba(255, 255, 255, 0.2);
+                            border-radius: 50%;
+                        }
+
+                        .total-label {
+                            font-size: 1.1rem;
+                            font-weight: 600;
+                            color: white !important;
+                        }
+
+                        .total-amount {
+                            font-size: 1.2rem !important;
+                            font-weight: 700 !important;
+                            color: white !important;
+                        }
+
+                        @media print {
+                            .total-row {
+                                background: #2563eb !important;
+                                -webkit-print-color-adjust: exact !important;
+                                print-color-adjust: exact !important;
+                            }
+                            .total-row th {
+                                color: white !important;
+                            }
+                        }
+                    </style>
+
+                                    <div class="date-info text-muted small mt-2" id="calculationDate"></div>
+                                </div>
+                            </div>
+
+                            <!-- Kesintiler -->
+                            <div class="payroll-card mb-4">
+                                <div class="payroll-card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-minus-circle me-2"></i>
+                                        Yasal Kesintiler
+                                    </h5>
+                                </div>
+                                <div class="payroll-card-body">
+                                    <table class="table table-modern">
+                                        <tbody>
+                                            ${generateDeductionsRows(data)}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="deductions-total">
+                                                <th>Toplam Kesinti</th>
+                                                <th class="text-end">${formatTL(totalDeductions)}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Net Maaş -->
+                            <div class="net-salary-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Net Maaş</h5>
+                                    <span class="net-amount">${formatTL(data.netSalary)}</span>
+                                </div>
+                            </div>
+
+                            <!-- Alt Bilgi -->
+                            <div class="footer-info mt-4">
+                                <p class="mb-0 text-muted">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                         Bu hesaplama aracı yalnızca bilgi amaçlıdır ${new Date().toLocaleDateString('tr-TR', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        })} tarihinde oluşturulmuştur.
+                                    </small>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Yardımcı fonksiyonlar
+                function generatePayrollRows(data) {
+                    const rows = [];
+                    
+                    // Akdi Tatil
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-calendar-check"></i></span>
+                                    <span>Akdi Tatil (${data.akdiTatilDays} gün)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.akdiTatilUcret)}</td>
+                        </tr>
+                    `);
+
+                    // Hafta Tatili
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-calendar-week"></i></span>
+                                    <span>Hafta Tatili (${data.haftaTatiliDays} gün)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.haftaTatilUcret)}</td>
+                        </tr>
+                    `);
+
+                    // Resmi Tatil
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-calendar-star"></i></span>
+                                    <span>Resmi Tatil (${data.resmiTatilDays} gün)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.resmiTatilUcret || 0)}</td>
+                        </tr>
+                    `);
+
+                    // Akdi Tatil Mesai
+                    if (data.akdiTatilMesai > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-business-time"></i></span>
+                                        <span>Akdi Tatil Mesai (${data.akdiTatilMesai} gün)</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.akdiTatilMesaiUcret)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Resmi Tatil Mesai
+                    if (data.resmiTatilMesai > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-clock"></i></span>
+                                        <span>Resmi Tatil Mesai (${data.resmiTatilMesai} gün)</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.resmiTatilMesaiUcret)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Yemek Yardımı
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-utensils"></i></span>
+                                    <span>Yemek Yardımı</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.mealAllowance || 0)}</td>
+                        </tr>
+                    `);
+
+                    // Ulaşım Yardımı
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-bus"></i></span>
+                                    <span>Ulaşım Yardımı</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.transportation || 0)}</td>
+                        </tr>
+                    `);
+
+                    // Sosyal Yardım
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-hands-helping"></i></span>
+                                    <span>Sosyal Yardım</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.social || 0)}</td>
+                        </tr>
+                    `);
+
+                    // İkramiye
+                    if (data.bonus > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-gift"></i></span>
+                                        <span>İkramiye (${data.selectedMonth}. ay - 15 gün)</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.bonus)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Çocuk Yardımı
+                    if (data.cocukYardimi > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-child"></i></span>
+                                        <span>Çocuk Yardımı</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.cocukYardimi)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Yakacak Yardımı
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-fire"></i></span>
+                                    <span>Yakacak Yardımı</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.yakacakYardimi || 0)}</td>
+                        </tr>
+                    `);
+
+                    // Sokak Harcırahı
+                    if (data.sokakHarcirahi > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-road"></i></span>
+                                        <span>Sokak Harcırahı</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.sokakHarcirahi)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Ramazan Yardımı
+                    if (data.ramazanYardimi > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-moon"></i></span>
+                                        <span>Ramazan Yardımı</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.ramazanYardimi)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Kurban Yardımı
+                    if (data.kurbanYardimi > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-sheep"></i></span>
+                                        <span>Kurban Yardımı</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.kurbanYardimi)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // Seçilen Yardımlar
+                    if (data.selectedAidDetails && data.selectedAidDetails !== 'Yok') {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-hand-holding-heart"></i></span>
+                                        <span>Seçilen Yardımlar</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${data.selectedAidDetails}</td>
+                            </tr>
+                        `);
+                    }
+
+                    return rows.join('');
+                }
+
+                function generateDeductionsRows(data) {
+                    const rows = [];
+                    
+                    // SGK Primi
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-shield-alt"></i></span>
+                                    <span>SGK Primi (%14)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.sgkDeduction)}</td>
+                        </tr>
+                    `);
+
+                    // İşsizlik Sigortası
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-umbrella"></i></span>
+                                    <span>İşsizlik Sigortası (%1)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.unemploymentDeduction)}</td>
+                        </tr>
+                    `);
+
+                    // Gelir Vergisi
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-percent"></i></span>
+                                    <span>Gelir Vergisi (%7)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.incomeTax)}</td>
+                        </tr>
+                    `);
+
+                    // Damga Vergisi
+                    rows.push(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <span class="item-icon me-2"><i class="fas fa-stamp"></i></span>
+                                    <span>Damga Vergisi (%0.759)</span>
+                                </div>
+                            </td>
+                            <td class="text-end amount">${formatTL(data.stampTax)}</td>
+                        </tr>
+                    `);
+
+                    // Sendika Aidatı
+                    if (data.sendikaAidati > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-users"></i></span>
+                                        <span>Sendika Aidatı</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.sendikaAidati)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    // İcra Kesintisi
+                    if (data.icraKesinti > 0) {
+                        rows.push(`
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="item-icon me-2"><i class="fas fa-gavel"></i></span>
+                                        <span>İcra Kesintisi (%25)</span>
+                                    </div>
+                                </td>
+                                <td class="text-end amount">${formatTL(data.icraKesinti)}</td>
+                            </tr>
+                        `);
+                    }
+
+                    return rows.join('');
+                }
+
+                // Yazdırma stilleri
+                const printStyles = `
+                    <style>
+                        @media print {
+                            @page {
+                                size: A4;
+                                margin: 10mm;
+                            }
+                            body {
+                                font-family: Arial, sans-serif;
+                                line-height: 1.2;
+                                color: #000;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            * {
+                                box-sizing: border-box;
+                            }
+                            .card {
+                                border: 1px solid #ddd !important;
+                                margin-bottom: 8mm;
+                                page-break-inside: avoid;
+                            }
+                            .card-header {
+                                background-color: #f8f9fa !important;
+                                border-bottom: 1px solid #ddd !important;
+                                padding: 6px 10px !important;
+                                font-size: 10pt !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .card-body {
+                                padding: 6px 10px !important;
+                            }
+                            .table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 0;
+                                font-size: 9pt;
+                            }
+                            .table th, .table td {
+                                border: 1px solid #ddd !important;
+                                padding: 4px 6px !important;
+                            }
+                            .table th {
+                                background-color: #f8f9fa !important;
+                                font-size: 9pt;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .total-row {
+                                background-color: #3b82f6 !important;
+                                color: white !important;
+                                font-size: 10pt !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .total-row th {
+                                background-color: transparent !important;
+                                color: white !important;
+                                font-size: 10pt !important;
+                            }
+                            .net-salary-card {
+                                background-color: #3b82f6 !important;
+                                color: white !important;
+                                padding: 8px 12px !important;
+                                border-radius: 4px !important;
+                                margin-top: 8mm !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                                display: flex !important;
+                                justify-content: space-between !important;
+                                align-items: center !important;
+                            }
+                            .net-amount {
+                                font-size: 12pt !important;
+                                font-weight: bold !important;
+                            }
+                            .info-card {
+                                background-color: white !important;
+                                border: 1px solid #ddd !important;
+                                margin-bottom: 4mm;
+                            }
+                            .info-card-header {
+                                background-color: #3b82f6 !important;
+                                color: white !important;
+                                font-size: 10pt !important;
+                                padding: 6px 10px !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .info-item {
+                                font-size: 9pt !important;
+                                padding: 4px 6px !important;
+                            }
+                            .bg-primary, .bg-success, .bg-info {
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            }
+                            .text-white {
+                                color: white !important;
+                            }
+                            .alert {
+                                display: none !important;
+                            }
+                            .btn {
+                                display: none !important;
+                            }
+                            .date-info {
+                                font-size: 8pt !important;
+                                margin-top: 4mm !important;
+                                text-align: right;
+                                color: #666;
+                            }
+                            .item-icon {
+                                display: none !important;
+                            }
+                            .fas {
+                                display: none !important;
+                            }
+                            
+                            /* Yasal uyarı */
+                            .legal-disclaimer {
+                                border: 1px solid #dc3545;
+                                color: #dc3545;
+                                padding: 8px;
+                                font-weight: bold;
+                                text-align: center;
+                                margin-bottom: 10mm;
+                                font-size: 10pt;
+                            }
+                        }
+                    </style>
+                `;
+
+                // PDF Oluşturma Fonksiyonu
+                function generatePDF() {
+                    const loadingMessage = $('<div>')
+                        .addClass('alert alert-info position-fixed')
+                        .css({
+                            top: '20px',
+                            right: '20px',
+                            zIndex: 9999
+                        })
+                        .html('<i class="fas fa-spinner fa-spin"></i> PDF oluşturuluyor...')
+                        .appendTo('body');
+
+                    try {
+                        const element = document.getElementById('payrollDetails');
+                        if (!element) {
+                            throw new Error('PDF oluşturulacak alan bulunamadı!');
+                        }
+
+                        // PDF için içeriği klonla
+                        const pdfElement = element.cloneNode(true);
+                        
+                        // Üst kısımdaki gereksiz elementleri kaldır
+                        const headerToRemove = pdfElement.querySelector('.payroll-header-section');
+                        if (headerToRemove) {
+                            headerToRemove.remove();
+                        }
+
+                        // Şirket adı yazısını kaldır
+                        const companyTitle = pdfElement.querySelector('.company-title');
+                        if (companyTitle) {
+                            companyTitle.remove();
+                        }
+
+                        // PDF için hazırlık div'i
+                        const prepContainer = document.createElement('div');
+                        prepContainer.style.cssText = `
+                            position: fixed;
+                            left: -9999px;
+                            top: 0;
+                            width: 210mm;
+                            min-height: 297mm;
+                            background: white;
+                            padding: 15mm;
+                            box-sizing: border-box;
+                        `;
+                        document.body.appendChild(prepContainer);
+                        
+                        // Yasal uyarı ekle
+                        const disclaimer = document.createElement('div');
+                        disclaimer.innerHTML = 'Bu hesaplama aracı yalnızca bilgi amaçlıdır, yasal geçerliliği yoktur.';
+                        disclaimer.style.cssText = `
+                            border: 1px solid #dc3545;
+                            color: #dc3545;
+                            padding: 8px;
+                            font-weight: bold;
+                            text-align: center;
+                            margin-bottom: 15mm;
+                            font-size: 10pt;
+                        `;
+                        prepContainer.appendChild(disclaimer);
+                        prepContainer.appendChild(pdfElement);
+
+                        // İçerik stillerini ayarla
+                        pdfElement.style.cssText = `
+                            width: 100%;
+                            font-size: 8pt;
+                            line-height: 1.3;
+                            color: #000;
+                        `;
+
+                        // Tablo stillerini ayarla
+                        const tables = pdfElement.getElementsByTagName('table');
+                        for (let table of tables) {
+                            table.style.cssText = `
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 2mm;
+                                font-size: 8pt;
+                            `;
+                            const cells = [...table.getElementsByTagName('td'), ...table.getElementsByTagName('th')];
+                            cells.forEach(cell => {
+                                cell.style.cssText = `
+                                    padding: 1.5mm;
+                                    border: 0.5pt solid #ddd;
+                                    font-size: 8pt;
+                                `;
+                            });
+                        }
+
+                        // Kartların stillerini ayarla
+                        const cards = pdfElement.querySelectorAll('.card, .info-card, .payroll-card');
+                        cards.forEach(card => {
+                            card.style.cssText = `
+                                margin-bottom: 2mm;
+                                padding: 2mm;
+                                border: 0.5pt solid #ddd;
+                                box-shadow: none;
+                                page-break-inside: avoid;
+                                background-color: white !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            `;
+                        });
+
+                        // Net maaş kartını ayarla
+                        const netSalaryCard = pdfElement.querySelector('.net-salary-card');
+                        if (netSalaryCard) {
+                            netSalaryCard.style.cssText = `
+                                padding: 12px 16px;
+                                margin-top: 0;
+                                background: #3b82f6 !important;
+                                border: none;
+                                border-radius: 4px;
+                                page-break-inside: avoid;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            `;
+
+                            // Net tutar başlığı ve değerini içeren yeni bir div oluştur
+                            const netSalaryContent = document.createElement('div');
+                            netSalaryContent.style.cssText = `
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                width: 100%;
+                            `;
+
+                            // Net Tutar başlığı
+                            const netSalaryLabel = document.createElement('div');
+                            netSalaryLabel.innerHTML = '<i class="fas fa-calculator me-2"></i>Net Tutar';
+                            netSalaryLabel.style.cssText = `
+                                font-size: 16px !important;
+                                font-weight: 600 !important;
+                                color: white !important;
+                                display: flex;
+                                align-items: center;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            `;
+
+                            // Net tutar değeri
+                            const netAmount = netSalaryCard.querySelector('.net-amount');
+                            if (netAmount) {
+                                netAmount.style.cssText = `
+                                    font-size: 16px !important;
+                                    font-weight: 700 !important;
+                                    color: white !important;
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                `;
+                            }
+
+                            // Eski içeriği temizle ve yeni içeriği ekle
+                            netSalaryCard.innerHTML = '';
+                            netSalaryContent.appendChild(netSalaryLabel);
+                            netSalaryContent.appendChild(netAmount.cloneNode(true));
+                            netSalaryCard.appendChild(netSalaryContent);
+                        }
+
+                        // Toplam kesinti satırının stilini güncelle
+                        const deductionsTotal = pdfElement.querySelector('.deductions-total');
+                        if (deductionsTotal) {
+                            deductionsTotal.style.cssText = `
+                                background: #f1f5f9 !important;
+                                font-weight: 600 !important;
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            `;
+                            const cells = deductionsTotal.getElementsByTagName('th');
+                            for (let cell of cells) {
+                                cell.style.cssText = `
+                                    padding: 8px 12px !important;
+                                    color: #1e293b !important;
+                                    font-size: 14px !important;
+                                    -webkit-print-color-adjust: exact;
+                                    print-color-adjust: exact;
+                                `;
+                            }
+                        }
+
+                        // Renklerin düzgün görünmesi için
+                        const colorElements = pdfElement.querySelectorAll('.bg-primary, .bg-success, .bg-info, .text-primary, .text-success, .text-info');
+                        colorElements.forEach(el => {
+                            el.style.cssText += `
+                                -webkit-print-color-adjust: exact;
+                                print-color-adjust: exact;
+                            `;
+                        });
+
+                        // PDF oluşturma
+                        html2canvas(prepContainer, {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true,
+                            backgroundColor: '#ffffff',
+                            logging: false,
+                            windowWidth: prepContainer.offsetWidth,
+                            windowHeight: prepContainer.offsetHeight,
+                            onclone: function(clonedDoc) {
+                                // Klonlanmış dokümanda net tutar elementini kontrol et
+                                const clonedNetAmount = clonedDoc.querySelector('.net-amount');
+                                if (clonedNetAmount) {
+                                    clonedNetAmount.style.cssText = `
+                                        font-size: 12pt !important;
+                                        font-weight: bold !important;
+                                        color: #2563eb !important;
+                                        display: block !important;
+                                        visibility: visible !important;
+                                        -webkit-print-color-adjust: exact;
+                                        print-color-adjust: exact;
+                                    `;
+                                }
+                            }
+                        }).then(canvas => {
+                            try {
+                                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                                
+                                // A4 PDF oluştur
+                                const pdf = new jsPDF({
+                                    orientation: 'portrait',
+                                    unit: 'mm',
+                                    format: 'a4',
+                                    compress: true
+                                });
+
+                                // Görüntü boyutlarını hesapla
+                                const pageWidth = pdf.internal.pageSize.getWidth();
+                                const pageHeight = pdf.internal.pageSize.getHeight();
+                                
+                                // Canvas oranını koru
+                                const ratio = canvas.width / canvas.height;
+                                let imgWidth = pageWidth;
+                                let imgHeight = imgWidth / ratio;
+
+                                // Sayfaya sığdır
+                                if (imgHeight > pageHeight) {
+                                    imgHeight = pageHeight;
+                                    imgWidth = imgHeight * ratio;
+                                }
+
+                                // Görüntüyü sayfaya ortalayarak yerleştir
+                                const x = (pageWidth - imgWidth) / 2;
+                                const y = 0;
+
+                                pdf.addImage(imgData, 'JPEG', x, y, imgWidth, imgHeight, undefined, 'FAST');
+                                pdf.save('bordro.pdf');
+
+                                // Temizlik
+                                document.body.removeChild(prepContainer);
+
+                                loadingMessage
+                                    .removeClass('alert-info')
+                                    .addClass('alert-success')
+                                    .html('<i class="fas fa-check-circle"></i> PDF başarıyla oluşturuldu!')
+                                    .delay(2000)
+                                    .fadeOut(300, function() { $(this).remove(); });
+
+                            } catch (pdfError) {
+                                console.error('PDF oluşturma hatası:', pdfError);
+                                document.body.removeChild(prepContainer);
+                                loadingMessage
+                                    .removeClass('alert-info')
+                                    .addClass('alert-danger')
+                                    .html('<i class="fas fa-exclamation-circle"></i> PDF oluşturulurken hata: ' + pdfError.message);
+                            }
+                        }).catch(canvasError => {
+                            console.error('Canvas oluşturma hatası:', canvasError);
+                            document.body.removeChild(prepContainer);
+                            loadingMessage
+                                .removeClass('alert-info')
+                                .addClass('alert-danger')
+                                .html('<i class="fas fa-exclamation-circle"></i> Görüntü oluşturulurken hata: ' + canvasError.message);
+                        });
+
+                    } catch (error) {
+                        console.error('Genel hata:', error);
+                        loadingMessage
+                            .removeClass('alert-info')
+                            .addClass('alert-danger')
+                            .html('<i class="fas fa-exclamation-circle"></i> ' + error.message);
+                    }
+                }
+
+                function handleError(error, container, message) {
+                    if (container) {
+                        document.body.removeChild(container);
+                    }
+                    message
+                        .removeClass('alert-info')
+                        .addClass('alert-danger')
+                        .html('<i class="fas fa-exclamation-circle"></i> ' + error.message);
+                }
+
+                // Sayfa yüklendiğinde jsPDF'i kontrol et
+                $(document).ready(function() {
+                    if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                        console.warn('jsPDF kütüphanesi henüz yüklenmedi. Sayfa yenilendikten sonra tekrar deneyin.');
+                    }
+
+                    // PDF butonu için click event listener
+                    $(document).on('click', 'button[onclick="generatePDF()"]', function(e) {
+                        e.preventDefault();
+                        generatePDF();
+                    });
+                });
+
+                document.getElementById('result').innerHTML = resultHTML;
+                document.getElementById('resultCard').style.display = 'block';
+                document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+            }  catch (error) {
+                console.error('Sonuç gösterme hatası:', error);
+                alert('Sonuçlar gösterilirken bir hata oluştu. Hata: ' + error.message);
+            }
+        }
+
+        // Ay içindeki günleri hesaplayan fonksiyon
+        function calculateMonthDays(year, month) {
+            const days = {
+                normal: 0,
+                akdiTatil: 0,    // Cumartesi
+                haftaTatili: 0,  // Pazar
+                resmiTatil: 0
+            };
+
+            // Türkiye'deki resmi tatiller (2025 yılı için)
+            const holidays2025 = {
+                '2025-01-01': 1,       // Yılbaşı
+                '2025-03-29': 0.5,     // Ramazan Bayramı Arife (yarım gün)
+                '2025-03-30': 1,       // Ramazan Bayramı 1. Gün
+                '2025-03-31': 1,       // Ramazan Bayramı 2. Gün
+                '2025-04-01': 1,       // Ramazan Bayramı 3. Gün
+                '2025-04-23': 1,       // 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı
+                '2025-05-01': 1,       // 1 Mayıs Emek ve Dayanışma Günü
+                '2025-05-19': 1,       // 19 Mayıs Atatürk'ü Anma, Gençlik ve Spor Bayramı
+                '2025-06-05': 0.5,     // Kurban Bayramı Arife (yarım gün)
+                '2025-06-06': 1,       // Kurban Bayramı 1. Gün
+                '2025-06-07': 1,       // Kurban Bayramı 2. Gün
+                '2025-06-08': 1,       // Kurban Bayramı 3. Gün
+                '2025-06-09': 1,       // Kurban Bayramı 4. Gün
+                '2025-07-15': 1,       // 15 Temmuz Demokrasi ve Milli Birlik Günü
+                '2025-08-30': 1,       // 30 Ağustos Zafer Bayramı
+                '2025-10-28': 0.5,     // 28 Ekim öğleden sonra
+                '2025-10-29': 1        // 29 Ekim Cumhuriyet Bayramı
+            };
+
+            // 2026 yılı için resmi tatiller
+            const holidays2026 = {
+                '2026-01-01': 1,       // Yılbaşı
+                '2026-03-19': 0.5,     // Ramazan Bayramı Arife (yarım gün)
+                '2026-03-20': 1,       // Ramazan Bayramı 1. Gün
+                '2026-03-21': 1,       // Ramazan Bayramı 2. Gün
+                '2026-03-22': 1,       // Ramazan Bayramı 3. Gün
+                '2026-04-23': 1,       // 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı
+                '2026-05-01': 1,       // 1 Mayıs Emek ve Dayanışma Günü
+                '2026-05-19': 1,       // 19 Mayıs Atatürk'ü Anma, Gençlik ve Spor Bayramı
+                '2026-05-26': 0.5,     // Kurban Bayramı Arife (yarım gün)
+                '2026-05-27': 1,       // Kurban Bayramı 1. Gün
+                '2026-05-28': 1,       // Kurban Bayramı 2. Gün
+                '2026-05-29': 1,       // Kurban Bayramı 3. Gün
+                '2026-05-30': 1,       // Kurban Bayramı 4. Gün
+                '2026-07-15': 1,       // 15 Temmuz Demokrasi ve Milli Birlik Günü
+                '2026-08-30': 1,       // 30 Ağustos Zafer Bayramı
+                '2026-10-28': 0.5,     // 28 Ekim öğleden sonra
+                '2026-10-29': 1        // 29 Ekim Cumhuriyet Bayramı
+            };
+
+            // Hangi yılın tatillerini kullanacağımızı belirle
+            const holidays = year === 2025 ? holidays2025 : holidays2026;
+
+            // Ayın ilk ve son günleri
+            const firstDay = new Date(year, month - 1, 1);
+            const lastDay = new Date(year, month, 0).getDate();
+
+            for (let day = 1; day <= lastDay; day++) {
+                const currentDate = new Date(year, month - 1, day);
+                const dayOfWeek = currentDate.getDay();
+                
+                // YYYY-MM-DD formatında tarih oluştur
+                const dateString = `${year}-${(month).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                
+                // Önce resmi tatil mi kontrol et
+                if (holidays[dateString]) {
+                    const tatilGunu = holidays[dateString];
+                    
+                    // Resmi tatil sayacını artır (0.5 veya 1 gün)
+                    days.resmiTatil += tatilGunu;
+                    
+                    // Eğer tam gün resmi tatil hafta sonuna denk gelirse, hafta sonu sayacından çıkar
+                    if (tatilGunu === 1) {
+                        if (dayOfWeek === 0) {
+                            days.haftaTatili--;
+                        } else if (dayOfWeek === 6) {
+                            days.akdiTatil--;
+                        }
+                    }
+                    
+                    // Yarım gün tatillerde (0.5) diğer yarım gün normal çalışma günü olarak sayılır
+                    if (tatilGunu === 0.5 && dayOfWeek !== 0 && dayOfWeek !== 6) {
+                        days.normal += 0.5;
+                    }
+                } 
+                // Resmi tatil değilse günün türünü belirle
+                else if (dayOfWeek === 0) { // Pazar
+                    days.haftaTatili++;
+                } else if (dayOfWeek === 6) { // Cumartesi
+                    days.akdiTatil++;
+                } else { // Hafta içi normal iş günü
+                    days.normal++;
+                }
+            }
+
+            // Tüm sayaçların pozitif olduğundan emin ol
+            days.haftaTatili = Math.max(0, days.haftaTatili);
+            days.akdiTatil = Math.max(0, days.akdiTatil);
+            days.normal = Math.max(0, days.normal);
+            
+            // Yarım günleri doğru hesaplamak için
+            days.normal = Math.round(days.normal * 10) / 10;
+            days.resmiTatil = Math.round(days.resmiTatil * 10) / 10;
+
+            return days;
+        }
+
+        document.getElementById('calcMonth').addEventListener('change', function() {
+            const [year, month] = this.value.split('-').map(Number);
+            const days = calculateMonthDays(year, month);
+            
+            document.getElementById('normalDays').value = days.normal;
+            document.getElementById('akdiTatilDays').value = days.akdiTatil;
+            document.getElementById('haftaTatiliDays').value = days.haftaTatili;
+            document.getElementById('resmiTatilDays').value = days.resmiTatil;
+        });
+
+        // Sayfa yüklendiğinde ilk değerleri doldur
+        window.addEventListener('load', function() {
+            const calcMonth = document.getElementById('calcMonth');
+            const [year, month] = calcMonth.value.split('-').map(Number);
+            const days = calculateMonthDays(year, month);
+            document.getElementById('normalDays').value = days.normal;
+            document.getElementById('akdiTatilDays').value = days.akdiTatil;
+            document.getElementById('haftaTatiliDays').value = days.haftaTatili;
+            document.getElementById('resmiTatilDays').value = days.resmiTatil;
+        });
+
+        // Yazdırma fonksiyonunu ve ilgili stilleri kaldır
+        const printStyles = `
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        `;
+
+        // Stil ekle
+        const styleElement = document.createElement('style');
+        styleElement.textContent = printStyles;
+        document.head.appendChild(styleElement);
+
+        // Yazdırma fonksiyonu
+        function printPayroll() {
+            const printContent = document.getElementById('payrollDetails');
+            if (!printContent) {
+                alert('Yazdırılacak içerik bulunamadı!');
+                return;
+            }
+
+            // Yazdırma öncesi hazırlık
+            const originalContent = document.body.innerHTML;
+            const printArea = printContent.cloneNode(true);
+
+            // Yazdırma için gereksiz butonları kaldır
+            const buttons = printArea.querySelectorAll('button');
+            buttons.forEach(button => button.remove());
+
+            // Yazdırma stilleri
+            const printStyles = `
+                <style>
+                    @media print {
+                        @page {
+                            size: A4;
+                            margin: 15mm;
+                        }
+                        body {
+                            font-family: Arial, sans-serif;
+                            line-height: 1.3;
+                            color: #000;
+                        }
+                        .card {
+                            border: 1px solid #ddd !important;
+                            margin-bottom: 10mm;
+                            page-break-inside: avoid;
+                        }
+                        .card-header {
+                            background-color: #f8f9fa !important;
+                            border-bottom: 1px solid #ddd !important;
+                            padding: 8px 12px !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 0;
+                        }
+                        .table th, .table td {
+                            border: 1px solid #ddd !important;
+                            padding: 6px 8px !important;
+                            font-size: 11pt;
+                        }
+                        .table th {
+                            background-color: #f8f9fa !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .total-row {
+                            background-color: #3b82f6 !important;
+                            color: white !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .net-salary-card {
+                            background-color: #3b82f6 !important;
+                            color: white !important;
+                            padding: 12px 16px !important;
+                            border-radius: 4px !important;
+                            margin-top: 10mm !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .net-amount {
+                            font-size: 14pt !important;
+                            font-weight: bold !important;
+                        }
+                        .info-card {
+                            background-color: white !important;
+                            border: 1px solid #ddd !important;
+                            margin-bottom: 5mm;
+                        }
+                        .info-card-header {
+                            background-color: #3b82f6 !important;
+                            color: white !important;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .bg-primary, .bg-success, .bg-info {
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        .text-white {
+                            color: white !important;
+                        }
+                        .alert {
+                            display: none !important;
+                        }
+                        .btn {
+                            display: none !important;
+                        }
+                        
+                        /* Yasal uyarı */
+                        .legal-disclaimer {
+                            border: 1px solid #dc3545;
+                            color: #dc3545;
+                            padding: 8px;
+                            font-weight: bold;
+                            text-align: center;
+                            margin-bottom: 10mm;
+                            font-size: 10pt;
+                        }
+                    </style>
+                `;
+
+            // Yazdırma sayfasını hazırla
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Bordro Yazdır</title>
+                    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    ${printStyles}
+                </head>
+                <body>
+                    <div class="legal-disclaimer">
+                        Bu hesaplama aracı yalnızca bilgi amaçlıdır, yasal geçerliliği yoktur.
+                    </div>
+                    ${printArea.outerHTML}
+                </body>
+                </html>
+            `);
+
+            // Yazdırma işlemi
+            printWindow.document.close();
+            printWindow.focus();
+            
+            // Sayfanın yüklenmesini bekle ve yazdır
+            printWindow.onload = function() {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+    </script>
+
+    <!-- Düzenlemeler yapıldı ve hatalar giderildi -->
+    
+    <!-- Sayfanın en altında sabit footer -->
+    <div class="footer-banner">
+        <div class="footer-content">
+            <div class="copyright-text">
+                © 2024 Bordro Hesaplama Sistemi
+            </div>
+            <div class="developer-info">
+                <span class="dev-label">Tasarım ve Geliştirme:</span>
+                <span class="dev-name">
+                    <span class="dev-initial">H</span>
+                    <span class="dev-dot">.</span>
+                    <span class="dev-initial">C</span>
+                </span>
+            </div>
+        </div>
+        <div class="legal-text">
+            Bu sistem yalnızca bilgi amaçlıdır; gerçek bordro niteliği taşımamaktadır. 
+            <span class="legal-warning">Hesaplama sonuçlarının resmi veya hukuki geçerliliği yoktur.</span>
+        </div>
+    </div>
+</body>
+</html>
